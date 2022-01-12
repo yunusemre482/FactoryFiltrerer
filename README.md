@@ -1,8 +1,9 @@
-# BBM412 Term Project
+# FactoryFiltrerer
 ### Designed by Yunus Emre Akgün
 ### 21726875
-### Akgunyunus482@gmail.com
 
 
-`npm install` and `npm run start`
-# FactoryFiltrerer
+To set up project `npm install`
+to run project  `npm run start`
+open localhost:8080 you  will see 
+

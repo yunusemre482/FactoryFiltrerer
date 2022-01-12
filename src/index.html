@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
+    />
+    <script src="helpers/Tween.js"></script>
+    <title>BBM 412 Term Project</title>
+    <link rel="stylesheet" href="css/main.css" />
+  </head>
+  <body>
+    <div id='progressBar'></div>
+    <div id="blocker">
+      <div id="instructions">
+        <span style="font-size: 30px">Fastory Filtrer<br /></span>
+        <br />
+        Your goal is to clear aall trash and air pollution due to factory and
+        gain points.<br />
+        You can simply move your cursor and 'A' ,'S' ,'D','W' keys to change
+        direction of player and you can use 'Shift' key to change player run or
+        walk <br />
+        <br />
+        There are 6 level and each level you have to complete level in given
+        time<br />
+        Some factory on the map has some bad results for air and enviroment you
+        should remove its.<br />
+        <br />
+        Character Move: W,A,S,D and Shift(for change movement type 'Run' or
+        'Walk')<br />
+        For more information about character movements, you can press "Q"
+        anytime during the game.<br />
+        <br />
+        Have fun!<br />
+        Designed by Yunus Emre Akgün<br />
+        <button id="startButton" type="button">Start Game!</button>
+      </div>
+    </div>
+    <script type="x-shader/x-vertex" id="vertexShader">
+
+      varying vec3 vWorldPosition;
+
+      void main() {
+
+      	vec4 worldPosition = modelMatrix * vec4( position, 1.0 );
+      	vWorldPosition = worldPosition.xyz;
+
+      	gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+
+      }
+    </script>
+
+    <script type="x-shader/x-fragment" id="fragmentShader">
+
+      uniform vec3 topColor;
+      uniform vec3 bottomColor;
+      uniform float offset;
+      uniform float exponent;
+
+      varying vec3 vWorldPosition;
+
+      void main() {
+
+      	float h = normalize( vWorldPosition + offset ).y;
+      	gl_FragColor = vec4( mix( bottomColor, topColor, max( pow( max( h , 0.0), exponent ), 0.0 ) ), 1.0 );
+
+      }
+    </script>
+    <script type="x-shader/x-vertex" id="vertexShader2">
+
+      attribute float vertexDisplacement;
+      uniform float delta;
+      varying float vOpacity;
+      varying vec3 vUv;
+      
+      void main()
+      {
+          vUv = position;
+          vOpacity = vertexDisplacement;
+
+          vec3 p = position;
+
+          p.x += sin(vertexDisplacement) * 50.0;
+          p.y += cos(vertexDisplacement) * 50.0;
+
+      	vec4 modelViewPosition = modelViewMatrix * vec4(p, 1.0);
+      	gl_Position = projectionMatrix * modelViewPosition;
+      }
+    </script>
+
+    <script type="x-shader/x-fragment" id="fragmentShader2">
+
+      uniform float delta;
+      varying float vOpacity;
+      varying vec3 vUv;
+      
+      void main() {
+      
+          float r = 1.0 + cos(vUv.x * delta);
+          float g = 0.5 + sin(delta) * 0.5;
+          float b = 0.0;
+          vec3 rgb = vec3(r, g, b);
+      
+        gl_FragColor = vec4(rgb, vOpacity);
+      }
+    </script>
+
+    <script src="index.js"></script>
+  </body>
+</html>
