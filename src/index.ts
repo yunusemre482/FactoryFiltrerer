@@ -11,7 +11,6 @@ import {ShaderPass} from 'three/examples/jsm/postprocessing/ShaderPass';
 import {FXAAShader} from 'three/examples/jsm/shaders/FXAAShader';
 import {CopyShader} from 'three/examples/jsm/shaders/CopyShader';
 import {DragControls} from 'three/examples/jsm/controls/DragControls';
-import { remove } from './helpers/Tween';
 const TWEEN = require('@tweenjs/tween.js');
 
 var SOUTH = 2;
@@ -464,6 +463,12 @@ const camera = new THREE.PerspectiveCamera(
 camera.position.y = 5;
 camera.position.z = 5;
 camera.position.x = 0;
+
+var file = "/Users/yunusemre/Desktop/BBM/BBM412/FactoryFiltrer/src/objects/graph.json";
+$.getJSON(file, function(json) {
+  console.log(json); // this will show the info it in firebug console
+});
+
 
 // RENDERER
 const renderer = new THREE.WebGLRenderer({
@@ -1048,3 +1053,4 @@ function createProgressbar(duration:any) {
   container.appendChild(progressbar);
   // When everything is set up we start the animation
 }
+

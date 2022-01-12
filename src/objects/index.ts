@@ -1,5 +1,5 @@
-import {KeyDisplay} from './utils';
-import {CharacterControls} from './characterControls';
+import {KeyDisplay} from '../utils';
+import {CharacterControls} from '../characterControls';
 import * as THREE from 'three';
 import {CameraHelper, ObjectLoader, ShortType} from 'three';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
@@ -11,7 +11,7 @@ import {ShaderPass} from 'three/examples/jsm/postprocessing/ShaderPass';
 import {FXAAShader} from 'three/examples/jsm/shaders/FXAAShader';
 import {CopyShader} from 'three/examples/jsm/shaders/CopyShader';
 import {DragControls} from 'three/examples/jsm/controls/DragControls';
-import { remove } from './helpers/Tween';
+import { remove } from '../helpers/Tween';
 const TWEEN = require('@tweenjs/tween.js');
 
 var SOUTH = 2;
@@ -482,6 +482,9 @@ orbitControls.update();
 var characterControls: CharacterControls;
 init();
 loadAudio();
+$.getJSON("objects/graph.json", function(json) {
+  console.log(json); // this will show the info it in firebug console
+});
 function init() {
   
   container = document.createElement('div');
