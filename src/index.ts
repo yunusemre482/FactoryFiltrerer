@@ -426,14 +426,14 @@ var level1 = mapSetup();
 var canvas = document.createElement('canvas');
 canvas.setAttribute('id', 'MyCanvas');
 var context = canvas.getContext('webgl2');
-var progressbar = document.getElementById("progressBar");
+var progressbar = document.getElementById('progressBar');
 var progressbarinner = document.createElement('div');
 
-var  dirLight:THREE.DirectionalLight;
-var  ambientLight:THREE.AmbientLight;
-var directionalLight:THREE.DirectionalLight;
-var ambient:THREE.AmbientLight;
-var spotLight:THREE.SpotLight;
+var dirLight: THREE.DirectionalLight;
+var ambientLight: THREE.AmbientLight;
+var directionalLight: THREE.DirectionalLight;
+var ambient: THREE.AmbientLight;
+var spotLight: THREE.SpotLight;
 let mapCamera: THREE.OrthographicCamera,
   mapComposer: EffectComposer,
   mapWidth = 256,
@@ -464,10 +464,6 @@ camera.position.y = 5;
 camera.position.z = 5;
 camera.position.x = 0;
 
-var file = "/Users/yunusemre/Desktop/BBM/BBM412/FactoryFiltrer/src/objects/graph.json";
-$.getJSON(file, function(json) {
-  console.log(json); // this will show the info it in firebug console
-});
 
 
 // RENDERER
@@ -491,14 +487,12 @@ orbitControls.maxPolarAngle = Math.PI / 2 - 0.05;
 orbitControls.update();
 var characterControls: CharacterControls;
 init();
-loadAudio();
-function init() {
 
+function init() {
   container = document.createElement('div');
   container.setAttribute('id', 'ThreeJS');
   createProgressbar('300s');
   container.appendChild(renderer.domElement);
-  
 
   var loader = new GLTFLoader();
   level1.forEach((cl) => loadClusters(cl));
@@ -558,11 +552,12 @@ function init() {
         object.scene.userData.ground = true;
       }
       cluster == 'factory7' ? loadFilters(x * 60 - 3, z * 60) : (x = 1);
-      cluster == 'house' ? createCylinder(x*60-3,z*60) :(x=2);
+      cluster == 'house' ? createCylinder(x * 60 - 3, z * 60) : (x = 2);
 
       if (direction) object.scene.rotation.y = Math.PI * direction;
 
       scene.add(object.scene);
+      
     });
   }
 
@@ -596,34 +591,31 @@ function init() {
         var intersects = raycaster.intersectObjects(filters, true);
 
         if (intersects.length > 0) {
-          intersects.forEach((item:any)=>{
+          intersects.forEach((item: any) => {
             new TWEEN.Tween(item.object.parent.position)
-            .to(
-              {
-                x: 0,
-                y: 0,
-                z: 1000,
-              },
-              500,
-            )
-            .easing(TWEEN.Easing.Exponential.InOut)
-            .start();
+              .to(
+                {
+                  x: 0,
+                  y: 0,
+                  z: 1000,
+                },
+                500,
+              )
+              .easing(TWEEN.Easing.Exponential.InOut)
+              .start();
 
-          new TWEEN.Tween(item.object.parent.rotation)
-            .to(
-              {
-                x: 0,
-                y: 2,
-                z: 0,
-              },
-              500,
-            )
-            .easing(TWEEN.Easing.Exponential.InOut)
-            .start();
-
-
-          })
-         
+            new TWEEN.Tween(item.object.parent.rotation)
+              .to(
+                {
+                  x: 0,
+                  y: 2,
+                  z: 0,
+                },
+                500,
+              )
+              .easing(TWEEN.Easing.Exponential.InOut)
+              .start();
+          });
         }
         camera.updateMatrixWorld();
       }
@@ -680,6 +672,8 @@ function init() {
   var effectCopy2 = new ShaderPass(CopyShader);
   effectCopy2.renderToScreen = true;
   mapComposer.addPass(effectCopy2);
+  footStep();
+  loadAudio();
 }
 function loadPlayer() {
   new GLTFLoader().load('models/Soldier.glb', function (gltf) {
@@ -687,7 +681,7 @@ function loadPlayer() {
     player.traverse(function (object: any) {
       if (object.isMesh) object.castShadow = true;
     });
-    player.position.set(30, 0, 10);
+    player.position.set(160, 0, 160);
     player.scale.set(1.6, 1.6, 1.6);
     scene.add(player);
 
@@ -695,7 +689,7 @@ function loadPlayer() {
     const material = new THREE.MeshBasicMaterial({color: 0x1100e6});
     const sphere = new THREE.Mesh(geometry, material);
 
-    sphere.position.set(30, 220, 10);
+    sphere.position.set(160, 220, 160);
     scene.add(sphere);
 
     const gltfAnimations: THREE.AnimationClip[] = gltf.animations;
@@ -718,24 +712,60 @@ function loadPlayer() {
   });
 }
 
+var AmbientSound:THREE.Audio;
+var footStepSound:THREE.Audio;
+function footStep() {
+  const audioListener = new THREE.AudioListener();
+
+  camera.add(audioListener);
+  footStepSound = new THREE.Audio(audioListener);
+  scene.add(footStepSound);
+  const loader = new THREE.AudioLoader();
+  loader.load(
+    // resource URL
+    'assets/sounds/footStep.mp3',
+
+    function (audioBuffer) {
+      // set the audio object buffer to the loaded object
+      footStepSound.setBuffer(audioBuffer);
+      footStepSound.setLoop(true);
+      footStepSound.setVolume(100);
+      
+    },
+    function (xhr) {
+      console.log((xhr.loaded / xhr.total) * 100 + '% loaded');
+    },
+    function (err) {
+      console.log('An error happened');
+    },
+  );
+}
 function loadAudio() {
-  const listener = new THREE.AudioListener();
-  sound = new THREE.PositionalAudio(listener);
+  const audioListener = new THREE.AudioListener();
 
-  camera.add(listener);
+  camera.add(audioListener);
+  AmbientSound = new THREE.Audio(audioListener);
+  scene.add(AmbientSound);
+  const loader = new THREE.AudioLoader();
+  loader.load(
+    // resource URL
+    'assets/sounds/gameAudio.mp3',
 
-  const audioLoader = new THREE.AudioLoader();
-  audioLoader.load('assets/sounds/walk2.mp3', function (buffer) {
-    sound.setBuffer(buffer);
-    sound.setLoop(true);
-    sound.setVolume(100);
-  });
+    function (audioBuffer) {
+      // set the audio object buffer to the loaded object
+      AmbientSound.setBuffer(audioBuffer);
+      AmbientSound.setLoop(true);
+      AmbientSound.setVolume(80);
+    },
+    function (xhr) {
+      console.log((xhr.loaded / xhr.total) * 100 + '% loaded');
+    },
+    function (err) {
+      console.log('An error happened');
+    },
+  );
 }
 
-function intersect(pos: THREE.Vector2) {
-  raycaster.setFromCamera(pos, camera);
-  return raycaster.intersectObjects(filters, false);
-}
 // CONTROL KEYS
 const keysPressed = {};
 const keyDisplayQueue = new KeyDisplay();
@@ -743,7 +773,7 @@ const blocker = document.getElementById('blocker');
 const start = document.getElementById('startButton');
 const instr = document.getElementById('instructions');
 var count: number = 0;
-var changeshader: number = 0;
+var changeshader: number = 1;
 var flag = 0;
 
 const text2 = document.createElement('div');
@@ -788,10 +818,11 @@ document.addEventListener(
 start.addEventListener(
   'click',
   function (event) {
-    instr.style.display = 'none';
-    blocker.style.display = 'none';
-    loadPlayer();
-    progressbarinner.style.animationPlayState='running';
+      instr.style.display = 'none';
+      blocker.style.display = 'none';
+      loadPlayer();
+      AmbientSound.play();
+      progressbarinner.style.animationPlayState = 'running';
   },
   false,
 );
@@ -799,44 +830,53 @@ document.addEventListener(
   'keypress',
   (event) => {
     var name = event.key;
-    console.log(name); 
+    console.log(name);
     if (name == 'm') {
       count ? (count = 0) : (count = 1);
     }
     if (name == 'ş') {
-      if (changeshader == 0 || changeshader == 3) { 
+      if (changeshader == 0 || changeshader == 3) {
         changeshader = 1;
       } else if (changeshader == 1 || changeshader == 2) {
         changeshader = 0;
       }
     }
-    if(name=='l'){
+    if (name == 'l') {
       console.log(spotEnable);
-      if(spotEnable==0){
-        addSpotLigth()
+      if (spotEnable == 0) {
+        addSpotLigth();
         scene.background = new THREE.Color(0x111111);
-        spotEnable=1;
-      }else if(spotEnable ==1){
+        spotEnable = 1;
+      } else if (spotEnable == 1) {
         scene.background = new THREE.Color(0xa8def0);
         removeSpotLight();
-        spotEnable=0;
+        spotEnable = 0;
       }
-      
     }
   },
   false,
 );
 window.addEventListener('resize', onWindowResize);
-
+var uniforms1 = {
+  "time": { value: 1.0 }
+};
 const clock = new THREE.Clock();
 // ANIMATE
 function animate() {
   let mixerUpdateDelta = clock.getDelta();
   if (characterControls) {
+    uniforms1[ "time" ].value += mixerUpdateDelta * 5;
+    if(characterControls.currentAction=='Run'){
+      footStepSound.play();
+    }else{
+      footStepSound.pause();
+    }
     filters.forEach(function (fltr: any) {
       fltr.rotateY(Math.PI / 4);
     });
     if (changeshader == 1) {
+      scene.remove(hemiLight);
+      scene.remove(sky);
       const vertexShader = document.getElementById('vertexShader').textContent;
       const fragmentShader =
         document.getElementById('fragmentShader').textContent;
@@ -847,19 +887,23 @@ function animate() {
         offset: {value: 33},
         exponent: {value: 0.6},
       };
-      sphereLight(vertexShader, fragmentShader, uniforms);
+      sphereLightShader1(vertexShader, fragmentShader, uniforms);
     } else if (changeshader == 0) {
+      const vertexShader = document.getElementById('vertexShader2').textContent;
+      const fragmentShader =document.getElementById('fragmentShader2').textContent;
+      sphereLightShader2(vertexShader, fragmentShader, uniforms1)
       changeshader = 3;
-      scene.remove(hemiLight);
-      scene.remove(sky);
     }
 
     characterControls.update(mixerUpdateDelta, keysPressed);
   }
-  if(spotEnable){
-
-    spotLight.target.position.set( characterControls.model.position.x,characterControls.model.position.y,characterControls.model.position.z);
-    spotLight.position.copy( camera.position );
+  if (spotEnable) {
+    spotLight.target.position.set(
+      characterControls.model.position.x,
+      characterControls.model.position.y,
+      characterControls.model.position.z,
+    );
+    spotLight.position.copy(camera.position);
     spotLight.updateMatrixWorld();
   }
   TWEEN.update();
@@ -897,24 +941,27 @@ function onWindowResize() {
   renderer.setSize(window.innerWidth, window.innerHeight);
   keyDisplayQueue.updatePosition();
 }
-function createCylinder(x:number,z:number) {
+function createCylinder(x: number, z: number) {
   let radius = 4;
-  let height = 6
-  let pos = { x: x, y: 0, z:z};
+  let height = 6;
+  let pos = {x: x, y: 0, z: z};
 
   // threejs
-  let cylinder = new THREE.Mesh(new THREE.CylinderBufferGeometry(radius, radius, height, 32), new THREE.MeshPhongMaterial({ color: 0x90ee90 }))
-  cylinder.position.set(pos.x, pos.y, pos.z)
-  cylinder.castShadow = true
-  cylinder.receiveShadow = true
-  scene.add(cylinder)
+  let cylinder = new THREE.Mesh(
+    new THREE.CylinderBufferGeometry(radius, radius, height, 32),
+    new THREE.MeshPhongMaterial({color: 0x90ee90}),
+  );
+  cylinder.position.set(pos.x, pos.y, pos.z);
+  cylinder.castShadow = true;
+  cylinder.receiveShadow = true;
+  scene.add(cylinder);
 
-  cylinder.userData.draggable = true
-  cylinder.userData.name = 'CYLINDER'
+  cylinder.userData.draggable = true;
+  cylinder.userData.name = 'CYLINDER';
 }
-var spotEnable=0;
+var spotEnable = 0;
 
-var SpotDefaultPosition:any;
+var SpotDefaultPosition: any;
 function addLight() {
   ambient = new THREE.AmbientLight(0x1d1d30);
   scene.add(ambient);
@@ -922,7 +969,6 @@ function addLight() {
   directionalLight = new THREE.DirectionalLight(0xffeedff);
   directionalLight.position.set(0, 2, 1);
   scene.add(directionalLight);
-  
 
   dirLight = new THREE.DirectionalLight(0xffffff, 1);
   dirLight.position.set(-60, 100, -10);
@@ -938,21 +984,34 @@ function addLight() {
   scene.add(dirLight);
   // scene.add( new THREE.CameraHelper(dirLight.shadow.camera))
 }
-function removeLight(){
+function removeLight() {
   scene.remove(dirLight);
   scene.remove(directionalLight);
   scene.remove(ambient);
 }
 var hemiLight: any, sky: any;
-
-function sphereLight(vertexShader: any, fragmentShader: any, uniforms: any) {
+function sphereLightShader1(vertexShader: any, fragmentShader: any, uniforms: any){
+  
+  scene.remove(sky);
   hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.6);
   hemiLight.color.setHSL(0.6, 1, 0.6);
   hemiLight.groundColor.setHSL(0.095, 1, 0.75);
   hemiLight.position.set(0, 50, 0);
   scene.add(hemiLight);
-  uniforms['topColor'].value.copy(hemiLight.color);
+  const skyGeo = new THREE.SphereBufferGeometry(4000, 32, 15);
+  const skyMat = new THREE.ShaderMaterial({
+    uniforms: uniforms,
+    vertexShader: vertexShader,
+    fragmentShader: fragmentShader,
+    side: THREE.BackSide,
+  });
+  sky = new THREE.Mesh(skyGeo, skyMat);
+  scene.add(sky);
 
+}
+function sphereLightShader2(vertexShader: any, fragmentShader: any, uniforms: any) {
+  scene.remove(hemiLight);
+  scene.remove(sky);
   const skyGeo = new THREE.SphereBufferGeometry(4000, 32, 15);
   const skyMat = new THREE.ShaderMaterial({
     uniforms: uniforms,
@@ -1013,12 +1072,19 @@ function generateMap() {
   return clusterNames;
 }
 
-function addSpotLigth(){
+function addSpotLigth() {
   removeLight();
-  spotLight = new THREE.SpotLight( 0xffffff, 5, 1000, Math.PI/8, 1  );
-  spotLight.position.set( characterControls.model.position.x, characterControls.model.position.y, characterControls.model.position.z );
-  spotLight.target.position.set(characterControls.model.position.x-5, characterControls.model.position.y, characterControls.model.position.z-5);
-  
+  spotLight = new THREE.SpotLight(0xffffff, 5, 1000, Math.PI / 8, 1);
+  spotLight.position.set(
+    characterControls.model.position.x,
+    characterControls.model.position.y,
+    characterControls.model.position.z,
+  );
+  spotLight.target.position.set(
+    characterControls.model.position.x - 5,
+    characterControls.model.position.y,
+    characterControls.model.position.z - 5,
+  );
 
   spotLight.castShadow = true;
 
@@ -1029,18 +1095,18 @@ function addSpotLigth(){
   spotLight.shadow.camera.far = 4000;
   spotLight.shadow.camera.fov = 10;
 
-  scene.add(spotLight );
+  scene.add(spotLight);
   scene.add(spotLight.target);
 }
-function removeSpotLight(){
+function removeSpotLight() {
   addLight();
   scene.remove(spotLight);
   scene.remove(spotLight.target);
 }
-function createProgressbar(duration:any) {
+function createProgressbar(duration: any) {
   // We select the div that we want to turn into a progressbar
   progressbar.className = 'progressbar';
-  
+
   // We create the div that changes width to show progress
   progressbarinner.className = 'inner';
 
@@ -1053,4 +1119,3 @@ function createProgressbar(duration:any) {
   container.appendChild(progressbar);
   // When everything is set up we start the animation
 }
-
